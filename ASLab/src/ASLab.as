@@ -4,9 +4,8 @@ package {
 	
 	public class ASLab extends Sprite {
 		
-		public function ASLab()
-		{
-			
+		public function ASLab() {
+			trace('hello, git');
 		}
 		
 	}
