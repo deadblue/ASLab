@@ -23,6 +23,7 @@ package cn.twodland.video.youku {
 	[Event(name="complete", type="flash.events.Event")]
 	public class YoukuParser extends EventDispatcher implements IVideoParser {
 		
+		// Loader加载swf有域名控制，正式使用时请将youku的播放器与自己播放器放在同一域名下
 		private static const YOUKU_PLAYER_URL:String = 'file:///Volumes/Macintosh HD/develop/git/ASLab/ASLab/bin-debug/player_yk.swf';
 		private static const CTYPE:int = 10;
 		private static const EV:int = 1;
