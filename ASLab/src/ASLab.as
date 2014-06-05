@@ -32,7 +32,7 @@ package {
 		protected function parserInitHandler(evt:Event):void {
 			var youku:YoukuParser = evt.target as YoukuParser;
 			youku.removeEventListener(Event.INIT, parserInitHandler);
-			youku.loadVideos('XMTY3NTg0NDg4');
+			youku.loadVideos('XNDk3MzczMTI0');
 		}
 		
 		protected function parserCompleteHandler(evt:Event):void {

@@ -26,6 +26,13 @@ package cn.twodland.video.youku {
 		private static const YOUKU_PLAYER_URL:String = 'file:///Volumes/Macintosh HD/develop/git/ASLab/ASLab/bin-debug/player_yk.swf';
 		private static const CTYPE:int = 10;
 		private static const EV:int = 1;
+		private static const HD_TYPES:Object = {
+			'flv' : '0',
+			'flvhd' : '0',
+			'mp4' : '1',
+			'hd2' : '2',
+			'hd3' : '3'
+		};
 		
 		private var clib:* = null;
 		private var cRandomProxy:Class = null;
@@ -102,6 +109,11 @@ package cn.twodland.video.youku {
 		 */
 		public function loadVideos(vid:String):void {
 			Logger.logf('load videos for vid: %s', vid);
+			
+			// TODO: 
+			// v.youku.com使用crossdomain.xml限制了flash的访问
+			// 需要通过服务器读取数据返回给播放器，或通过其他手段规避crossdomain限制
+			
 			// 构造URL
 			var timezone:String = new Date().toString();
 			timezone = timezone.substr(timezone.indexOf('GMT') + 3, 3);
@@ -158,7 +170,6 @@ package cn.twodland.video.youku {
 				segData.key = segObj.k;
 				segData.fileId = getFileId(rawFileId, segIndex, rndProxy);
 				segData.fileURL = getFileURL(segData);
-				trace(segData.fileURL);
 				playListData.segs.push(segData);
 			}
 		}
@@ -186,33 +197,26 @@ package cn.twodland.video.youku {
 			var noStr:String = segData.no.toString(16);
 			if(noStr.length == 1)
 				noStr = '0' + noStr;
-			// 计算EP
+			// streamType
+			var streamType:String = playListData.streamType;
+			if(streamType == 'hd2' || streamType == 'hd3') streamType = 'flv';
+			// hdType
+			var hdType:String = HD_TYPES.hasOwnProperty(playListData.streamType) ? 
+				HD_TYPES[playListData.streamType] : '0';
+			// EP
 			var ep:String = playListData.sid + '_' + segData.fileId + '_' + playListData.tk + '_0';
 			var epSize:String = changeSize(ep);
 			ep = encodeURIComponent(setSize(ep + '_' + epSize.substr(0, 4)));
 			// 拼接URL
 			var url:StringBuffer = new StringBuffer('http://k.youku.com/player/getFlvPath/sid/');
 			url.append(playListData.sid).append('_').append(noStr);
-			url.append('/st/').append(playListData.streamType).append('/fileid/').append(segData.fileId);
-			url.append('?start=0&K=').append(segData.key).append('&hd=').append(getHDType(playListData.streamType));
+			url.append('/st/').append(streamType).append('/fileid/').append(segData.fileId);
+			url.append('?start=0&K=').append(segData.key).append('&hd=').append(hdType);
 			url.append('&myp=0&ts=').append(segData.seconds).append('&ymovie=1&ypp=0');
 			url.append('&ctype=').append(CTYPE).append('&ev=').append(EV);
 			url.append('&token=').append(playListData.tk).append('&oip=').append(playListData.ip);
 			url.append('&ep=').append(ep);
 			return url.toString();
-		}
-		private function getHDType(streamType:String):int {
-			var hd:int = 0;
-			if(streamType == 'flv' || streamType == 'flvhd') {
-				hd = 0;
-			} else if(streamType == 'mp4') {
-				hd = 1;
-			} else if(streamType == 'hd2') {
-				hd = 2;
-			} else if(streamType == 'hd3') {
-				hd = 3;
-			}
-			return hd;
 		}
 
 		public function getVideos():Vector.<VideoPartData> {
